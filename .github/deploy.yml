@@ -1,39 +1,19 @@
-# Name of the GitHub Actions workflow
-name: Deploy
+name: Deploy to Render
 
-# Trigger the workflow on push and pull request events to the main branch
 on:
   push:
-    branches: [main]
-  pull_request:
     branches:
       - main
 
 jobs:
-  # Define a job named "ci"
-  ci:
-    # Specify the operating system to run the job on
+  deploy:
     runs-on: ubuntu-latest
-    
-    # Define the steps to be executed in the job
     steps:
-      # Checkout the code from the repository
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # Define a step named "Test"
-      - name: Test
-        # Run install and test scripts
+      - name: Deploy to Render
         run: |
-            npm install
-            npm run test
-
-      # Define a step named "Deploy"
-      - name: Deploy
-        # Only run this step if the branch is main
-        if: github.ref == 'refs/heads/main'
-        # Set an environment variable with the deployment URL from secrets
+          curl -X POST "$RENDER_DEPLOY_HOOK_URL"
         env:
-          DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        # Run the deployment command
-        run: |
-          curl "$DEPLOY_URL"
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
